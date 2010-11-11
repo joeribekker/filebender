@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+{% if files %}
+	{% for file in files %}
+		{{ file.data.name }}
+	{% endfor %}
+{% else %}
+	No Files
+{% endif %}
+
+<a href="/files/upload">upload</a>
+
+{% endblock %}
+
