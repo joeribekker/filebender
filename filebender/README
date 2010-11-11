@@ -1,0 +1,13 @@
+REQUIREMENTS
+============
+
+* Django 1.2
+
+* python-saml2
+	https://code.launchpad.net/~lgs/pysaml2/main
+	
+* xmlsec1
+
+* pip install httplib2
+
+* pip install decorator
