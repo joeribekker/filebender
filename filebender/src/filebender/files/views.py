@@ -2,6 +2,10 @@ from django.contrib.auth.decorators import login_required
 from django.template import RequestContext
 from django.shortcuts import render_to_response
 from django.http import HttpResponseRedirect
+from django.conf import settings
+
+import os.path
+
 from models import File
 from forms import UploadForm
 
@@ -29,8 +33,16 @@ def list(request):
 def upload(request):
     if request.method == 'POST':
         form = UploadForm(request.POST, request.FILES)
-        if form.is_valid() and len(request.FILES) == 1:
-            handle_uploaded_file(request.FILES['file'])
+        if form.is_valid():
+            f = request.FILES['file']
+            filename = form.cleaned_data['file'].name
+            location = settings.MEDIA_ROOT
+            file_location = os.path.join(location, filename)
+            destination = open(file_location, 'wb+')        
+            for chunk in f.chunks():
+                destination.write(chunk)
+            file = File(data=file_location, owner=request.user)
+            file.save()
             return HttpResponseRedirect('/files/list/')
     else:
         form = UploadForm()

@@ -9,7 +9,7 @@ class File(models.Model):
     expire_date = models.DateTimeField()
     upload_date = models.DateTimeField()
     owner = models.ForeignKey(User)
-    secret = models.CharField(50)
+    #secret = models.CharField(50)
     
     def __unicode__(self):
         return self.data.name

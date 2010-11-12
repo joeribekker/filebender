@@ -12,28 +12,29 @@ MANAGERS = ADMINS
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3', # Add 'postgresql_psycopg2', 'postgresql', 'mysql', 'sqlite3' or 'oracle'.
-        'NAME': os.path.join(here, '../../database/sqlite3.db'),                      # Or path to database file if using sqlite3.
-        'USER': '',                      # Not used with sqlite3.
-        'PASSWORD': '',                  # Not used with sqlite3.
-        'HOST': '',                      # Set to empty string for localhost. Not used with sqlite3.
-        'PORT': '',                      # Set to empty string for default. Not used with sqlite3.
-    }
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': os.path.join(here, '../../database/sqlite3.db'),
+     }
 }
 
 TIME_ZONE = 'Europe/Amsterdam'
+
 LANGUAGE_CODE = 'en-us'
+
 SITE_ID = 1
+
 USE_I18N = True
+
 USE_L10N = True
+
 MEDIA_ROOT = os.path.join(here, '../../media/')
+
 MEDIA_URL = '/media/'
+
 ADMIN_MEDIA_PREFIX = '/admin-media/'
 
-# Make this unique, and don't share it with anybody.
 SECRET_KEY = '&bhy2&*zy4wr%!yk7qv(yzb6*5s$h!mgs_nos!+@3^y0li31sb'
 
-# List of callables that know how to import templates from various sources.
 TEMPLATE_LOADERS = (
     'django.template.loaders.filesystem.Loader',
     'django.template.loaders.app_directories.Loader',
@@ -61,12 +62,11 @@ INSTALLED_APPS = (
     'django.contrib.sites',
     'django.contrib.messages',
     'django.contrib.admin',
-#    'django.contrib.admindocs',
     'filebender.files',
 #    'djangosaml2',
 )
 
-#LOGIN_URL = '/saml2/login/'
+LOGIN_URL = '/saml2/login/'
 
 #AUTHENTICATION_BACKENDS = (
 #    'djangosaml2.backends.Saml2Backend',

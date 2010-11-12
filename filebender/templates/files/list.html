@@ -1,5 +1,11 @@
 {% extends "base.html" %}
 
+
+{% block pagetitle %}
+<h2>File List</h2>
+{% endblock %}
+
+
 {% block content %}
 
 {% if files %}
@@ -10,7 +16,6 @@
 	No Files
 {% endif %}
 
-<a href="/files/upload">upload</a>
 
 {% endblock %}
 
