@@ -1,12 +1,13 @@
 from django.contrib.auth.decorators import login_required
 from django.template import RequestContext
 from django.shortcuts import render_to_response, get_object_or_404
-from django.http import HttpResponseRedirect
+from django.http import HttpResponseRedirect, Http404
 from django.conf import settings
+from django.core.mail import send_mail
 
 import os.path
 
-from models import File
+from models import File, Downloader
 from forms import UploadForm
 
 
@@ -27,7 +28,15 @@ def handle_uploaded_file(filename, filedata):
 @login_required
 def list(request):
     files = File.objects.all()
-    return render_to_response('files/list.html', {'files': files}, context_instance=RequestContext(request))
+    return render_to_response('files/list.html', {'files': files},
+                              context_instance=RequestContext(request))
+
+def mailit(to, message, url):
+    body = "%s \n\n Download URL: %s" % (message, url)
+    send_mail('A file for you',
+              body,
+              'gijs@pythonic.nl',
+    to, fail_silently=False)
 
 
 @login_required
@@ -39,10 +48,14 @@ def upload(request):
             filename = form.cleaned_data['file'].name
             expire_date = form.cleaned_data['expire_date']
             message = form.cleaned_data['message']
+            receiver = form.cleaned_data['receiver']
             handle_uploaded_file(filename, filedata)  
             file = File(data=filename, owner=request.user,
                         expire_date=expire_date, message=message)
             file.save()
+            downloader = Downloader(email=receiver, file=file)
+            downloader.save()
+            mailit([receiver], message, file.data.url)
             return HttpResponseRedirect('/files/list/')
     else:
         form = UploadForm()
@@ -51,9 +64,12 @@ def upload(request):
                               {'form': form,},
                               context_instance=RequestContext(request))
 
-def download(request, id):
+def download(request, id, secret):
     file = get_object_or_404(File, pk=id)
-    return render_to_response('files/download.html', {'file': file})
+    if secret != file.secret:
+        raise Http404
+    return render_to_response('files/download.html', {'file': file},
+                              context_instance=RequestContext(request))
 
 
 def delete(request, id):

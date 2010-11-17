@@ -9,11 +9,17 @@
 {% block content %}
 
 {% if files %}
-    <table>
+    <table border="1">
+    <tr>
+    <td><b>Direct Link</b></td>
+    <td><b>Download page</b></td>
+    <td><b>Delete</b></td>
+    </tr>
  	{% for file in files %}
        <tr>
 	   <td><a href="{{ file.data.url }}">{{ file.data.name }}</a></td>
-	   <td><a href="/files/delete/{{ file.id }}"> delete </a></td>
+	   <td><a href="/files/download/{{ file.id }}/{{ file.secret }}/">download</a></td>
+	   <td><a href="/files/delete/{{ file.id }}/"> delete </a></td>
 	   </tr>
 	{% endfor %}
 	</table>
