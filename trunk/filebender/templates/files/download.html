@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<h3>File Info</h3>
+<table>
+<tr><td>File name</td><td>{{ file.data.name }}</td></tr>
+<tr><td>Upload date</td><td>{{ file.upload_date }}</td></tr>
+<tr><td>Expire date</td><td>{{ file.expire_date }}</td></tr>
+<tr><td>Message</td><td>{{ file.message }}</td></tr>
+<tr><td>URL</td><td>{{ file.data.url }}</td></tr>
+</table>
+
+<h3>Downloaders</h3>
+{% if file.downloaders %}
+    <table>
+    <tr>
+    {% for downloader in file.downloaders.all %}
+        <td>{{ downloader.email }}</td>
+    {% endfor %}
+    </tr>
+    </table>
+{% else %}
+    No downloaders
+{% endif %}
+
+{% endblock %}
+
+
+
+
+

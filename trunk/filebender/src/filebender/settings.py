@@ -47,7 +47,7 @@ MIDDLEWARE_CLASSES = (
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
-    'debug_toolbar.middleware.DebugToolbarMiddleware',
+    #'debug_toolbar.middleware.DebugToolbarMiddleware',
     
 )
 
@@ -66,7 +66,7 @@ INSTALLED_APPS = (
     'django.contrib.admin',
     'files',
     'djangosaml2',
-    'debug_toolbar',
+    #'debug_toolbar',
 )
 
 #LOGIN_URL = '/saml2/login/'
@@ -128,3 +128,5 @@ INTERNAL_IPS = ('127.0.0.1',)
 
 # where to store large upload
 FILE_UPLOAD_TEMP_DIR='/tmp'
+
+FILE_SECRET_LENGTH=50
