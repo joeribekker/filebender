@@ -47,6 +47,8 @@ MIDDLEWARE_CLASSES = (
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
+    'debug_toolbar.middleware.DebugToolbarMiddleware',
+    
 )
 
 ROOT_URLCONF = 'filebender.urls'
@@ -62,16 +64,25 @@ INSTALLED_APPS = (
     'django.contrib.sites',
     'django.contrib.messages',
     'django.contrib.admin',
-    'filebender.files',
+    'files',
     'djangosaml2',
+    'debug_toolbar',
 )
 
-LOGIN_URL = '/saml2/login/'
+#LOGIN_URL = '/saml2/login/'
 
-AUTHENTICATION_BACKENDS = (
-    'djangosaml2.backends.Saml2Backend',
-    'django.contrib.auth.backends.ModelBackend',
+TEMPLATE_CONTEXT_PROCESSORS = (
+    "django.contrib.auth.context_processors.auth",
+    "django.core.context_processors.debug",
+    "django.core.context_processors.i18n",
+    "django.core.context_processors.media",
+    "django.contrib.messages.context_processors.messages",
+    'files.context_processors.auth_urls',
 )
+#AUTHENTICATION_BACKENDS = (
+#    'djangosaml2.backends.Saml2Backend',
+#    'django.contrib.auth.backends.ModelBackend',
+#)
 
 SAML_CONFIG = { 
     'xmlsec_binary' : '/opt/local/bin/xmlsec1',
@@ -93,21 +104,27 @@ SAML_CONFIG = {
                 "urn:mace:localhost:saml:gijs:idp": {
                     "single_signon_service": "http://localhost:8002/simplesaml"},
             },
+            "endpoints": "",
         }
     },
-    "key_file" : "./mykey.pem",
-    "cert_file" : "./mycert.pem",
-    "attribute_map_dir": "./attributemaps",
-    "organization": {
-        "display_name":["Rolands identities"]
-    },
-    "contact_person": [{
-        "givenname": "Roland",
-        "surname": "Hedberg",
-        "phone": "+46 90510",
-        "mail": "roland@example.com",
-        "type": "technical",
-        }]
+ #   "key_file" : "./mykey.pem",
+ #   "cert_file" : "./mycert.pem",
+ #   "attribute_map_dir": "./attributemaps",
+ #   "organization": {
+ #       "display_name":["Rolands identities"]
+ #   },
+ #   "contact_person": [{
+ #       "givenname": "Roland",
+ #       "surname": "Hedberg",
+ #       "phone": "+46 90510",
+ #       "mail": "roland@example.com",
+ #       "type": "technical",
+ #       }]
 }
 
 SAML_USERNAME_ATTRIBUTE = 'uid'
+
+INTERNAL_IPS = ('127.0.0.1',)
+
+# where to store large upload
+FILE_UPLOAD_TEMP_DIR='/tmp'
