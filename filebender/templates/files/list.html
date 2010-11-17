@@ -9,9 +9,14 @@
 {% block content %}
 
 {% if files %}
-	{% for file in files %}
-		{{ file.data.name }}
+    <table>
+ 	{% for file in files %}
+       <tr>
+	   <td><a href="{{ file.data.url }}">{{ file.data.name }}</a></td>
+	   <td><a href="/files/delete/{{ file.id }}"> delete </a></td>
+	   </tr>
 	{% endfor %}
+	</table>
 {% else %}
 	No Files
 {% endif %}
