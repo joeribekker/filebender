@@ -63,35 +63,35 @@ INSTALLED_APPS = (
     'django.contrib.messages',
     'django.contrib.admin',
     'filebender.files',
-#    'djangosaml2',
+    'djangosaml2',
 )
 
 LOGIN_URL = '/saml2/login/'
 
-#AUTHENTICATION_BACKENDS = (
-#    'djangosaml2.backends.Saml2Backend',
-#    'django.contrib.auth.backends.ModelBackend',
-#)
+AUTHENTICATION_BACKENDS = (
+    'djangosaml2.backends.Saml2Backend',
+    'django.contrib.auth.backends.ModelBackend',
+)
 
 SAML_CONFIG = { 
-    'xmlsec_binary' : '/usr/bin/xmlsec1',
+    'xmlsec_binary' : '/opt/local/bin/xmlsec1',
     "sp": {
-          "name" : "Rolands SP",
+          "name" : "Gijs SP",
           "url" : "http://www.example.com:8087/",
           "idp": {
-              "urn:mace:example.com:saml:roland:idp": {
-              "single_signon_service": "http://idp.example.com/sso"},
+              "urn:mace:localhost:saml:gijs:idp": {
+              "single_signon_service": "http://localhost:8002/simplesaml"},
           },
     },
     
-    "entityid" : "urn:mace:example.com:saml:roland:sp",
+    "entityid" : "urn:mace:localhost:saml:gijs:sp",
     "service": {
         "sp":{
-            "name" : "Rolands SP",
-            "url" : "http://www.example.com:8087/",
+            "name" : "Gijs SP",
+            "url" : "http://localhost:8002/simplesaml",
             "idp": {
-                "urn:mace:example.com:saml:roland:idp": {
-                    "single_signon_service": "http://idp.example.com/sso"},
+                "urn:mace:localhost:saml:gijs:idp": {
+                    "single_signon_service": "http://localhost:8002/simplesaml"},
             },
         }
     },

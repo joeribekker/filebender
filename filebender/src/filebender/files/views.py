@@ -16,13 +16,6 @@ from forms import UploadForm
 # TODO: maybe use custom upload handler
 # http://docs.djangoproject.com/en/1.2/topics/http/file-uploads/#upload-handlers
 
-def handle_uploaded_file(f):
-    destination = open('/tmp/upload.txt', 'wb+')
-    for chunk in f.chunks():
-        destination.write(chunk)
-    destination.close()
-
-
 @login_required
 def list(request):
     files = File.objects.all()
@@ -36,12 +29,15 @@ def upload(request):
         if form.is_valid():
             f = request.FILES['file']
             filename = form.cleaned_data['file'].name
+            expire_date = form.cleaned_data['expire_date']
+            message = form.cleaned_data['message']
             location = settings.MEDIA_ROOT
             file_location = os.path.join(location, filename)
             destination = open(file_location, 'wb+')        
             for chunk in f.chunks():
                 destination.write(chunk)
-            file = File(data=file_location, owner=request.user)
+            file = File(data=file_location, owner=request.user,
+                        expire_date=expire_date, message=message)
             file.save()
             return HttpResponseRedirect('/files/list/')
     else:
