@@ -1,5 +1,5 @@
-from files.models import File, Downloader
+from bigfiles.models import BigFile, Downloader
 from django.contrib import admin
 
-admin.site.register(File)
+admin.site.register(BigFile)
 admin.site.register(Downloader)

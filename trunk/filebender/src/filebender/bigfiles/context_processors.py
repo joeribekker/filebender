@@ -6,3 +6,10 @@ def auth_urls(context):
              'LOGIN_URL': settings.LOGIN_URL,
              'LOGOUT_URL': settings.LOGOUT_URL
              }
+
+def storage(context):
+     return {
+             'STORAGE_ROOT': settings.STORAGE_ROOT,
+             'STORAGE_URL': settings.STORAGE_URL
+             }
+

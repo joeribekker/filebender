@@ -78,6 +78,7 @@ TEMPLATE_CONTEXT_PROCESSORS = (
     "django.core.context_processors.media",
     "django.contrib.messages.context_processors.messages",
     'bigfiles.context_processors.auth_urls',
+    'bigfiles.context_processors.storage',
 )
 #AUTHENTICATION_BACKENDS = (
 #    'djangosaml2.backends.Saml2Backend',
