@@ -4,19 +4,18 @@ from random import choice
 from django.db import models
 from django.contrib.auth.models import User
 from django.conf import settings
-from django.core.files.storage import FileSystemStorage
 
 
-storage = FileSystemStorage(location=settings.STORAGE_ROOT,
-                            base_url=settings.STORAGE_URL)
-
-
+# TODO: collision possible, this could be replaced with a unique secret
+# generator, based on BigFile ID and a salt defined in settings
 def secret_generator(size=settings.FILE_SECRET_LENGTH):
     return "".join([choice(hexdigits) for i in range(size)])
 
 
 class BigFile(models.Model):
-    data = models.FileField(storage=storage, upload_to='shit')
+    name = models.CharField(max_length=100)
+    size = models.IntegerField()
+    md5 = models.CharField(max_length=32)
     expire_date = models.DateTimeField()
     upload_date = models.DateTimeField(auto_now_add=True)
     owner = models.ForeignKey(User)
