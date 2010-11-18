@@ -2,14 +2,26 @@
 
 {% block content %}
 
+<h3>Normal<h3>
 <form enctype="multipart/form-data" method="post" action="/bigfiles/upload/">
-
 {% csrf_token %} 
-
 {{ form.as_p }}
-
 <input type="submit" value="Submit" />
 </form>
+
+
+<h3>with XMLHttpRequest</h3>
+<script type="text/javascript">
+document.write("This is my first JavaScript!");
+
+var reader = new FileReader();
+reader.onload = function(e) {
+  var bin = e.target.result;
+  // bin is the binaryString
+};
+reader.readAsBinaryString(file);
+
+</script>
 
 {% endblock %}
 
