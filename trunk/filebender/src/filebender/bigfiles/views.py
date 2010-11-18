@@ -74,10 +74,9 @@ def upload(request):
             downloader = Downloader(email=receiver, bigfile=bigfile)
             downloader.save()
 
-            url = 'http://%s/%s/%s' % (Site.objects.get_current().domain, secret, name)
+            url = 'http://%s%s%s/%s' % (Site.objects.get_current().domain,
+                                        settings.STORAGE_URL, secret, name)
             from_ = request.user.email
-            current_site = Site.objects.get_current()
-            url = settings.STORAGE_URL + secret + "/" + name
             mailit([receiver], from_, message, url)
 
             return HttpResponseRedirect('/bigfiles/list/')
