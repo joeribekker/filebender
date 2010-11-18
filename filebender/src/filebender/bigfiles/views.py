@@ -74,8 +74,8 @@ def upload(request):
             downloader = Downloader(email=receiver, bigfile=bigfile)
             downloader.save()
 
-            url = 'http://%s%s%s/%s' % (Site.objects.get_current().domain,
-                                        settings.STORAGE_URL, secret, name)
+            url = 'http://%s/bigfiles/download/%s/%s' % (Site.objects.get_current().domain,
+                                        bigfile.id,  secret)
             from_ = request.user.email
             mailit([receiver], from_, message, url)
 
