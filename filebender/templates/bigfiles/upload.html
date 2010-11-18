@@ -10,19 +10,6 @@
 </form>
 
 
-<h3>with XMLHttpRequest</h3>
-<script type="text/javascript">
-document.write("This is my first JavaScript!");
-
-var reader = new FileReader();
-reader.onload = function(e) {
-  var bin = e.target.result;
-  // bin is the binaryString
-};
-reader.readAsBinaryString(file);
-
-</script>
-
 {% endblock %}
 
 
