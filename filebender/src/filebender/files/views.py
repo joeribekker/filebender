@@ -7,7 +7,7 @@ from django.core.mail import send_mail
 
 import os.path
 
-from models import File, Downloader
+from models import BigFile, Downloader
 from forms import UploadForm
 
 
@@ -27,8 +27,8 @@ def handle_uploaded_file(filename, filedata):
 
 @login_required
 def list(request):
-    files = File.objects.all()
-    return render_to_response('files/list.html', {'files': files},
+    bigfiles = BigFile.objects.all()
+    return render_to_response('bigfiles/list.html', {'bigfiles': bigfiles},
                               context_instance=RequestContext(request))
 
 def mailit(to, message, url):
@@ -50,30 +50,30 @@ def upload(request):
             message = form.cleaned_data['message']
             receiver = form.cleaned_data['receiver']
             handle_uploaded_file(filename, filedata)  
-            file = File(data=filename, owner=request.user,
+            file = BigFile(data=filename, owner=request.user,
                         expire_date=expire_date, message=message)
             file.save()
             downloader = Downloader(email=receiver, file=file)
             downloader.save()
             mailit([receiver], message, file.data.url)
-            return HttpResponseRedirect('/files/list/')
+            return HttpResponseRedirect('/bigfiles/list/')
     else:
         form = UploadForm()
 
-    return render_to_response('files/upload.html',
+    return render_to_response('bigfiles/upload.html',
                               {'form': form,},
                               context_instance=RequestContext(request))
 
 def download(request, id, secret):
-    file = get_object_or_404(File, pk=id)
+    file = get_object_or_404(BigFile, pk=id)
     if secret != file.secret:
         raise Http404
-    return render_to_response('files/download.html', {'file': file},
+    return render_to_response('bigfiles/download.html', {'file': file},
                               context_instance=RequestContext(request))
 
 
 def delete(request, id):
-    file = get_object_or_404(File, pk=id)
+    file = get_object_or_404(BigFile, pk=id)
     file.delete()
-    return HttpResponseRedirect('/files/list/')
+    return HttpResponseRedirect('/bigfiles/list/')
 

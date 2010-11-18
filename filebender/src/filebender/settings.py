@@ -129,4 +129,11 @@ INTERNAL_IPS = ('127.0.0.1',)
 # where to store large upload
 FILE_UPLOAD_TEMP_DIR='/tmp'
 
+# length of file secret. Don't change this after database creation
 FILE_SECRET_LENGTH=50
+
+# Where to store the large files
+STORAGE_ROOT = os.path.join(here, '../../files/')
+
+# How are the files accessed from outside
+STORAGE_URL = '/files/'
