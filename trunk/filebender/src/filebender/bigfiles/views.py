@@ -18,7 +18,7 @@ from forms import UploadForm
 # http://docs.djangoproject.com/en/1.2/topics/http/file-uploads/#upload-handlers
 
 def handle_uploaded_file(filename, filedata):
-    file_location = os.path.join(settings.MEDIA_ROOT, filename)
+    file_location = os.path.join(settings.STORAGE_ROOT, filename)
     destination = open(file_location, 'wb+')
     for chunk in filedata.chunks():
         destination.write(chunk)
@@ -50,10 +50,10 @@ def upload(request):
             message = form.cleaned_data['message']
             receiver = form.cleaned_data['receiver']
             handle_uploaded_file(filename, filedata)  
-            file = BigFile(data=filename, owner=request.user,
+            bigfile = BigFile(data=filename, owner=request.user,
                         expire_date=expire_date, message=message)
-            file.save()
-            downloader = Downloader(email=receiver, file=file)
+            bigfile.save()
+            downloader = Downloader(email=receiver, bigfile=bigfile)
             downloader.save()
             mailit([receiver], message, file.data.url)
             return HttpResponseRedirect('/bigfiles/list/')

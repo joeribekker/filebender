@@ -28,11 +28,11 @@ class BigFile(models.Model):
         return self.data.name
 
     def save(self, *args, **kwargs):
-        super(Blog, self).save(*args, **kwargs)
+        super(BigFile, self).save(*args, **kwargs)
 
 
 class Downloader(models.Model):
-    file = models.ForeignKey(File, related_name="downloaders")
+    bigfile = models.ForeignKey(BigFile, related_name="downloaders")
     email = models.EmailField()
 
     def __unicode__(self):

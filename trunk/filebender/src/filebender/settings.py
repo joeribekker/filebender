@@ -64,7 +64,7 @@ INSTALLED_APPS = (
     'django.contrib.sites',
     'django.contrib.messages',
     'django.contrib.admin',
-    'files',
+    'bigfiles',
     'djangosaml2',
     #'debug_toolbar',
 )
@@ -77,7 +77,7 @@ TEMPLATE_CONTEXT_PROCESSORS = (
     "django.core.context_processors.i18n",
     "django.core.context_processors.media",
     "django.contrib.messages.context_processors.messages",
-    'files.context_processors.auth_urls',
+    'bigfiles.context_processors.auth_urls',
 )
 #AUTHENTICATION_BACKENDS = (
 #    'djangosaml2.backends.Saml2Backend',
@@ -133,7 +133,7 @@ FILE_UPLOAD_TEMP_DIR='/tmp'
 FILE_SECRET_LENGTH=50
 
 # Where to store the large files
-STORAGE_ROOT = os.path.join(here, '../../files/')
+STORAGE_ROOT = os.path.join(here, '../../storage/')
 
 # How are the files accessed from outside
-STORAGE_URL = '/files/'
+STORAGE_URL = '/storage/'
