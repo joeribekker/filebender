@@ -95,6 +95,7 @@ def download(request, id, secret):
                               context_instance=RequestContext(request))
 
 
+@login_required
 def delete(request, id):
     bigfile = get_object_or_404(BigFile, pk=id)
 

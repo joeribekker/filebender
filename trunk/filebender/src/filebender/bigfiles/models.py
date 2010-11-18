@@ -24,7 +24,7 @@ class BigFile(models.Model):
                               default=secret_generator)
     
     def __unicode__(self):
-        return self.data.name
+        return self.name
 
     def save(self, *args, **kwargs):
         super(BigFile, self).save(*args, **kwargs)
