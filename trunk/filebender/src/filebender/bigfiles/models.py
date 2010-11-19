@@ -1,5 +1,6 @@
 from string import hexdigits
 from random import choice
+import datetime
 
 from django.db import models
 from django.contrib.auth.models import User
@@ -11,12 +12,15 @@ from django.conf import settings
 def secret_generator(size=settings.FILE_SECRET_LENGTH):
     return "".join([choice(hexdigits) for i in range(size)])
 
+def one_week_later(when=datetime.datetime.now()):
+    return  when + datetime.timedelta(weeks=1)
+
 
 class BigFile(models.Model):
     name = models.CharField(max_length=100)
     size = models.IntegerField()
     md5 = models.CharField(max_length=32)
-    expire_date = models.DateTimeField()
+    expire_date = models.DateTimeField(default=one_week_later)
     upload_date = models.DateTimeField(auto_now_add=True)
     owner = models.ForeignKey(User)
     message = models.TextField(blank=True)
