@@ -69,7 +69,7 @@ INSTALLED_APPS = (
     #'debug_toolbar',
 )
 
-#LOGIN_URL = '/saml2/login/'
+LOGIN_URL = '/saml2/login/'
 
 TEMPLATE_CONTEXT_PROCESSORS = (
     "django.contrib.auth.context_processors.auth",
@@ -80,10 +80,10 @@ TEMPLATE_CONTEXT_PROCESSORS = (
     'bigfiles.context_processors.auth_urls',
     'bigfiles.context_processors.storage',
 )
-#AUTHENTICATION_BACKENDS = (
-#    'djangosaml2.backends.Saml2Backend',
-#    'django.contrib.auth.backends.ModelBackend',
-#)
+AUTHENTICATION_BACKENDS = (
+    'djangosaml2.backends.Saml2Backend',
+    'django.contrib.auth.backends.ModelBackend',
+)
 
 SAML_CONFIG = { 
     'xmlsec_binary' : '/opt/local/bin/xmlsec1',
@@ -92,7 +92,7 @@ SAML_CONFIG = {
           "url" : "http://www.example.com:8087/",
           "idp": {
               "urn:mace:localhost:saml:gijs:idp": {
-              "single_signon_service": "http://localhost:8002/simplesaml"},
+              "single_signon_service": "http://localhost:8000/idp/"},
           },
     },
     
@@ -103,24 +103,24 @@ SAML_CONFIG = {
             "url" : "http://localhost:8002/simplesaml",
             "idp": {
                 "urn:mace:localhost:saml:gijs:idp": {
-                    "single_signon_service": "http://localhost:8002/simplesaml"},
+                    "single_signon_service": "http://localhost:8000/sp/"},
             },
             "endpoints": "",
         }
     },
- #   "key_file" : "./mykey.pem",
- #   "cert_file" : "./mycert.pem",
- #   "attribute_map_dir": "./attributemaps",
- #   "organization": {
- #       "display_name":["Rolands identities"]
- #   },
- #   "contact_person": [{
- #       "givenname": "Roland",
- #       "surname": "Hedberg",
- #       "phone": "+46 90510",
- #       "mail": "roland@example.com",
- #       "type": "technical",
- #       }]
+    "key_file" : os.path.join(here, '../../keys/private-key.pem'),
+    "cert_file" : os.path.join(here, '../../keys/certificate.pem'),
+    "attribute_map_dir": "./attributemaps",
+    "organization": {
+        "display_name":["Rolands identities"]
+    },
+    "contact_person": [{
+        "givenname": "Roland",
+        "surname": "Hedberg",
+        "phone": "+46 90510",
+        "mail": "roland@example.com",
+        "type": "technical",
+        }]
 }
 
 SAML_USERNAME_ATTRIBUTE = 'uid'
