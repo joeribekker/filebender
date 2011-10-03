@@ -4,6 +4,8 @@ here = os.path.dirname(__file__)
 DEBUG = True
 TEMPLATE_DEBUG = DEBUG
 
+USE_SAML2 = False
+
 ADMINS = (
     # ('Your Name', 'your_email@domain.com'),
 )
@@ -48,7 +50,7 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     #'debug_toolbar.middleware.DebugToolbarMiddleware',
-    
+
 )
 
 ROOT_URLCONF = 'filebender.urls'
@@ -65,11 +67,17 @@ INSTALLED_APPS = (
     'django.contrib.messages',
     'django.contrib.admin',
     'bigfiles',
-    'djangosaml2',
     #'debug_toolbar',
 )
 
-LOGIN_URL = '/saml2/login/'
+if USE_SAML2:
+    INSTALLED_APPS.append('djangosaml2')
+    LOGIN_URL = '/saml2/login/'
+    AUTHENTICATION_BACKENDS = (
+        'djangosaml2.backends.Saml2Backend',
+        'django.contrib.auth.backends.ModelBackend',
+    )
+
 
 TEMPLATE_CONTEXT_PROCESSORS = (
     "django.contrib.auth.context_processors.auth",
@@ -80,12 +88,7 @@ TEMPLATE_CONTEXT_PROCESSORS = (
     'bigfiles.context_processors.auth_urls',
     'bigfiles.context_processors.storage',
 )
-AUTHENTICATION_BACKENDS = (
-    'djangosaml2.backends.Saml2Backend',
-    'django.contrib.auth.backends.ModelBackend',
-)
-
-SAML_CONFIG = { 
+SAML_CONFIG = {
     'xmlsec_binary' : '/opt/local/bin/xmlsec1',
     "sp": {
           "name" : "Gijs SP",
@@ -95,7 +98,7 @@ SAML_CONFIG = {
               "single_signon_service": "http://localhost:8000/idp/"},
           },
     },
-    
+
     "entityid" : "urn:mace:localhost:saml:gijs:sp",
     "service": {
         "sp":{
