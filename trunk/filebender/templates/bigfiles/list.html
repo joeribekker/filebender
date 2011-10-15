@@ -5,10 +5,12 @@
 <h2>File List</h2>
 {% endblock %}
 
-
 {% block content %}
 
 {% if bigfiles %}
+
+
+
     <table border="1">
     <tr>
     <td><b>Direct Link</b></td>
@@ -25,7 +27,7 @@
        <td>{{ bigfile.upload_date }}</td>
        <td>{{ bigfile.expire_date }}</td>
        <td>{{ bigfile.md5 }}</td>
-	   <td><a href="/bigfiles/delete/{{ bigfile.id }}/"> delete </a></td>
+	   <td><a href="/bigfiles/delete/{{ bigfile.id }}/">delete</a></td>
 	   </tr>
 	{% endfor %}
 	</table>

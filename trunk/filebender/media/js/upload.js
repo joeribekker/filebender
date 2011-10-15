@@ -29,36 +29,28 @@ function fileSelected() {
 
 
 function uploadFile() {
-	
-	//var blocksize = 1024;
-	//file.size	
- 
-
 	var file = document.getElementById('file').files[0];
 	
-	var blobCrypt = BlobCrypt(file);
-	blobCrypt.onload = cryptComplete;
-	
-	
-	var reader = new FileReader()
-	reader.readAsArrayBuffer(file);
-	reader.onload = function() {}
+	var reader = new FileReader();
+	//reader.readAsArrayBuffer(file);
+	reader.readAsBinaryString(file);
+	reader.onload = readComplete;
   	reader.onerror = function(e) { alert(e) };
-  	}
-
-	var crypted = new BlobBuilder();
-	crypted.append(file);
-
-	cryptComplete(crypted.getBlob());
 }
 
-function cryptComplete(cryptedFile) {
+function readComplete(FREvent) {
+	result =  FREvent.target.result;  
+	//var array = new Uint32Array(result);
+	var crypt = sjcl.encrypt("password", result);
+	var builder = new BlobBuilder();
+	builder.append(crypt);
+	blob = builder.getBlob();
 	var fd = new FormData();
 	var xhr = new XMLHttpRequest();
 		
  	// TODO: should get it from current form, now gets first csrf token in page
 	fd.append("csrfmiddlewaretoken", document.getElementsByName('csrfmiddlewaretoken')[0].value);
-	fd.append("file", );
+	fd.append("file", blob);
 	xhr.upload.addEventListener("progress", uploadProgress, false);
 	xhr.addEventListener("load", uploadComplete, false);
 	xhr.addEventListener("error", uploadFailed, false);
