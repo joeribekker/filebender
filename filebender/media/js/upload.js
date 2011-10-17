@@ -41,7 +41,9 @@ function uploadFile() {
 function readComplete(FREvent) {
 	result =  FREvent.target.result;  
 	//var array = new Uint32Array(result);
-	var crypt = sjcl.encrypt("password", result);
+	
+	var key = document.getElementById('id_key').value;
+	var crypt = sjcl.encrypt(key, result);
 	var builder = new BlobBuilder();
 	builder.append(crypt);
 	blob = builder.getBlob();
@@ -50,6 +52,7 @@ function readComplete(FREvent) {
 		
  	// TODO: should get it from current form, now gets first csrf token in page
 	fd.append("csrfmiddlewaretoken", document.getElementsByName('csrfmiddlewaretoken')[0].value);
+	
 	fd.append("file", blob);
 	xhr.upload.addEventListener("progress", uploadProgress, false);
 	xhr.addEventListener("load", uploadComplete, false);
