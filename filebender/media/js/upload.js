@@ -1,17 +1,4 @@
 
-// Google chrome
-if (!window.BlobBuilder && window.WebKitBlobBuilder)
-	window.BlobBuilder = window.WebKitBlobBuilder;
-
-// Firefox
-if (!window.BlobBuilder && window.MozBlobBuilder)
-	window.BlobBuilder = window.MozBlobBuilder;
-
-
-if (!window.BlobBuilder )
-	alert("no blobbuilder. Use chrome 8+ or firefox 6+")
-
-
 function fileSelected() {
 	var file = document.getElementById('file').files[0];
 	if(file) {
@@ -32,18 +19,18 @@ function uploadFile() {
 	var file = document.getElementById('file').files[0];
 	
 	var reader = new FileReader();
-	//reader.readAsArrayBuffer(file);
+	
+	var type = file.type;
+	var name = file.name;
+		
 	reader.readAsBinaryString(file);
 	reader.onload = readComplete;
   	reader.onerror = function(e) { alert(e) };
 }
 
 function readComplete(FREvent) {
-	result =  FREvent.target.result;  
-	//var array = new Uint32Array(result);
-	
 	var key = document.getElementById('id_key').value;
-	var crypt = sjcl.encrypt(key, result);
+	var crypt = sjcl.encrypt(key, FREvent.target.result);
 	var builder = new BlobBuilder();
 	builder.append(crypt);
 	blob = builder.getBlob();

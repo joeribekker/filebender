@@ -1,15 +1,6 @@
-if (!window.BlobBuilder && window.WebKitBlobBuilder)
-	window.BlobBuilder = window.WebKitBlobBuilder;
-
-if (!window.BlobBuilder && window.MozBlobBuilder)
-	window.BlobBuilder = window.MozBlobBuilder;
 
 if (!window.URL && window.webkitURL)
 	window.URL = window.webkitURL;
-
-//if (!window.URL.createObjectURL && window.webkitURL.createObjectURL)
-//	window.URL.createObjectURL = window.webkitURL.createObjectURL;
-
 
 	
 
@@ -23,6 +14,8 @@ function decrypt(URI) {
 }
 
 function downloadComplete(evt) {
+	//todo: check for server response errors etc
+	
 	var builder = new BlobBuilder();
 	var key = prompt("Give key used for file encryption","password");
 	try {
@@ -32,10 +25,16 @@ function downloadComplete(evt) {
 		return;
 	}
 	
-	builder.append(plain);
+    var byteArray = new Uint8Array(plain.length);
+    for (var i = 0; i < plain.length; i++) {
+        byteArray[i] = plain.charCodeAt(i) & 0xff;
+    }
+	
+	builder.append(byteArray.buffer);
 	blob = builder.getBlob();
-	url = window.URL.createObjectURL(blob);
-	window.location = url;
+	saveAs(blob, "bla");
+	//url = window.URL.createObjectURL(blob);
+	//window.location = url;
 }
 
 function downloadFailed(evt) {
