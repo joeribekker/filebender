@@ -8,6 +8,6 @@ class UploadForm(forms.Form):
                               required=False)
     receiver = forms.EmailField(label='Receiver', required=False)
     expire_date = forms.DateTimeField(label='Expire date',
-                                      initial=one_week_later, required=False)
+                              initial=one_week_later, required=False)
 
 
