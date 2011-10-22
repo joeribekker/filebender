@@ -76,7 +76,7 @@ upload.start = function() {
 
 upload.nextChunk = function() {
     start = upload.completed;
-    end = Math.min(upload.blockSize, upload.file.size);
+    end = Math.min(upload.completed+upload.blockSize, upload.file.size);
     // make blob slice generic
     if (upload.file.mozSlice) { // firefox
         upload.slice = upload.file.mozSlice(start, end);
@@ -129,7 +129,7 @@ upload.uploadChunk = function() {
 upload.uploadProgress = function(evt) {
     var newPercent = "??";
 	if(evt.lengthComputable) {
-		var percentComplete = Math.round((evt.loaded + upload.completed) * 100 /
+		var percentComplete = Math.round((evt.loaded + upload.completed - upload.blockSize) * 100 /
 		                                                  upload.file.size);
 		newPercent = percentComplete.toString() + '%';
 	}
