@@ -19,8 +19,10 @@ var upload = {
     reader: new FileReader(),
     plainChunk: null,
     cryptChunk: null,
+    cryptBlob: null,
     fileid: null,
     key: null,
+    cryptBlobBuilder: null,
     
     states: {
         READY: 'ready',
@@ -32,95 +34,119 @@ var upload = {
     },
 };
 
-
-upload.state = upload.states.READY;
 upload.reader.onerror = function(e) { alert(e) };
 
+
+upload.reset = function() {
+    upload.completed = 0;
+    upload.file = null;
+    upload.type = null;
+    upload.plainChunk = null;
+    upload.cryptChunk = null;
+    upload.cryptBlob = null;
+    upload.fileid = null;
+    upload.key = null;
+    upload.blobBuilder = null;
+    upload.state = upload.states.READY;
+}
+
+
 upload.selected = function() {
-	this.file = document.getElementById('id_file').files[0];
+	upload.file = document.getElementById('id_file').files[0];
 	
-	if(this.file) {
-		document.getElementById('fileName').innerHTML = 'Name: ' + this.file.name;
-		document.getElementById('fileSize').innerHTML = 'Size: ' + formatSize(this.file.size);
-		document.getElementById('fileType').innerHTML = 'Type: ' + this.file.type;
+	if(upload.file) {
+		document.getElementById('fileName').innerHTML = 'Name: ' + upload.file.name;
+		document.getElementById('fileSize').innerHTML = 'Size: ' + formatSize(upload.file.size);
+		document.getElementById('fileType').innerHTML = 'Type: ' + upload.file.type;
 	}
 }
 
 
 upload.start = function() {
-	if(!this.file) {
+	if(!upload.file) {
 	    alert("no file selected");
 	    return;
 	}
-	
 
-	this.key = document.getElementById('id_key').value;
-	this.state = this.states.STARTED;
+	upload.key = document.getElementById('id_key').value;
+	upload.state = upload.states.STARTED;
     upload.nextChunk();
 }
 
 
 upload.nextChunk = function() {
-    start = this.completed;
-    end = Math.min(this.blockSize, this.file.size);
+    start = upload.completed;
+    end = Math.min(upload.blockSize, upload.file.size);
     // make blob slice generic
-    if (this.file.mozSlice) { // firefox
-        this.slice = this.file.mozSlice(start, end);
-    } else if (this.file.webkitSlice) { // chrome
-        this.slice = this.file.webkitSlice(start, end);
+    if (upload.file.mozSlice) { // firefox
+        upload.slice = upload.file.mozSlice(start, end);
+    } else if (upload.file.webkitSlice) { // chrome
+        upload.slice = upload.file.webkitSlice(start, end);
     } else {
         alert("cant slice a blob!");
         return;
     }
-    this.reader.readAsBinaryString(this.slice);
+    upload.reader.readAsBinaryString(upload.slice);
     
-    this.reader.onload = function(FREvent) {
+    upload.reader.onload = function(FREvent) {
         upload.plainChunk = FREvent.target.result;
-        upload.cryptChunk();
+        upload.encryptChunk();
     }
 }
 
 
-upload.cryptChunk = function() {
-    this.cryptChunk = sjcl.encrypt(this.key, this.plainChunk);
-    upload.initUpload();    
+upload.encryptChunk = function() {
+    upload.cryptChunk = sjcl.encrypt(upload.key, upload.plainChunk);
+    upload.cryptBlobBuilder = new BlobBuilder();
+    upload.cryptBlobBuilder.append(upload.cryptChunk);
+    upload.cryptBlob = upload.cryptBlobBuilder.getBlob();
+    upload.uploadChunk();    
 }
 
 
-upload.initUpload = function() {
-
-	var builder = new BlobBuilder();
-	builder.append(this.cryptChunk);
-	blob = builder.getBlob();
-	var fd = new FormData();
+upload.uploadChunk = function() {
 	var xhr = new XMLHttpRequest();
-		
- 	// TODO: should get it from current form, now gets first csrf token in page
-	fd.append("csrfmiddlewaretoken", document.getElementsByName('csrfmiddlewaretoken')[0].value);
+    xhr.upload.addEventListener("progress", upload.uploadProgress, false);
+    xhr.addEventListener("load", upload.uploadComplete, false);
+    xhr.addEventListener("error", upload.uploadFailed, false);
+    xhr.addEventListener("abort", upload.uploadCanceled, false);
+    		
+    var fd = new FormData();	
+	fd.append("file", upload.cryptBlob);
+    fd.append("csrfmiddlewaretoken",
+        document.getElementsByName('csrfmiddlewaretoken')[0].value);
+        
+    if(upload.fileid) {
+        xhr.open("POST", "/bigfiles/append.json/" + upload.fileid + "/");        
+    } else {
+        xhr.open("POST", "/bigfiles/upload.json/");
+    }
 	
-	fd.append("file", blob);
-	xhr.upload.addEventListener("progress", upload.uploadProgress, false);
-	xhr.addEventListener("load", upload.uploadComplete, false);
-	xhr.addEventListener("error", upload.uploadFailed, false);
-	xhr.addEventListener("abort", upload.uploadCanceled, false);
-	xhr.open("POST", "/bigfiles/upload.json/");
 	xhr.send(fd);
 }
 
 
 upload.uploadProgress = function(evt) {
+    var newPercent = "??";
 	if(evt.lengthComputable) {
-		var percentComplete = Math.round(evt.loaded * 100 / evt.total);
-		document.getElementById('progressNumber').innerHTML = percentComplete.toString() + '%';
-	} else {
-		document.getElementById('progressNumber').innerHTML = '??';
+		var percentComplete = Math.round((evt.loaded + upload.completed) * 100 /
+		                                                  upload.file.size);
+		newPercent = percentComplete.toString() + '%';
 	}
+	document.getElementById('progressNumber').innerHTML = newPercent;
 }
 
 
 upload.uploadComplete = function(evt) {
-	var response = JSON.parse(evt.target.responseText);
-	
+    // todo: check server http code 
+	try {
+        var response = JSON.parse(evt.target.responseText);
+    }catch(e) {
+        alert("can't parse server response, upload failed");
+        upload.reset();
+        return;
+    }
+
 	if(!upload.fileid) {
 	    if (!response['fileid']) {
 	       alert("didnt receive a fileID after first chunk");
@@ -130,10 +156,12 @@ upload.uploadComplete = function(evt) {
 	}
 	
     upload.completed = upload.completed + Math.min(upload.blockSize, upload.file.size);
+
     if(upload.completed < upload.file.size) {
         upload.nextChunk();    
     } else {
         alert("upload complete!");
+        upload.reset();
     }
     
 }
@@ -147,3 +175,6 @@ upload.uploadFailed = function(evt) {
 upload.uploadCanceled = function(evt) {
 	alert("The upload has been canceled by the user or the browser dropped the connection.");
 }
+
+
+

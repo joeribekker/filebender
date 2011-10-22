@@ -7,7 +7,7 @@ TEMPLATE_DEBUG = DEBUG
 USE_SAML2 = False
 
 ADMINS = (
-    # ('Your Name', 'your_email@domain.com'),
+    ('Gijs Molenaar', 'gijs@pythonic.nl'),
 )
 
 MANAGERS = ADMINS
@@ -88,6 +88,7 @@ TEMPLATE_CONTEXT_PROCESSORS = (
     'bigfiles.context_processors.auth_urls',
     'bigfiles.context_processors.storage',
 )
+
 SAML_CONFIG = {
     'xmlsec_binary' : '/opt/local/bin/xmlsec1',
     "sp": {
@@ -141,3 +142,22 @@ STORAGE_ROOT = os.path.join(here, '../../storage/')
 
 # How are the files accessed from outside
 STORAGE_URL = '/storage/'
+
+
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'handlers': {
+        'mail_admins': {
+            'level': 'ERROR',
+            'class': 'django.utils.log.AdminEmailHandler'
+        }
+    },
+    'loggers': {
+        'django.request': {
+            'handlers': ['mail_admins'],
+            'level': 'ERROR',
+            'propagate': True,
+        },
+    }
+}

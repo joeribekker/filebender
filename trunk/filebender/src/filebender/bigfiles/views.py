@@ -1,6 +1,7 @@
 
 import os.path
 import hashlib
+import shutil
 
 from django.contrib.auth.decorators import login_required
 from django.template import RequestContext
@@ -97,7 +98,7 @@ def upload(request, json=False):
                               context_instance=RequestContext(request))
 
 
-def append(request, bigfileid, secret):
+def append(request, bigfileid):
     if request.method != 'POST':
         response = {'status': 'error', 'message': 'expected a post'}
         return HttpResponse(simplejson.dumps(response))
@@ -108,16 +109,15 @@ def append(request, bigfileid, secret):
         return HttpResponse(simplejson.dumps(response))        
         
     bigfile = get_object_or_404(BigFile, pk=bigfileid)
-    if secret != bigfile.secret:
+
+    if request.user != bigfile.owner:
         raise Http404
-
+     
     data = request.FILES['file']
-    name = form.cleaned_data['file'].name
     size = form.cleaned_data['file'].size
-
-    filelocation = os.path.join(settings.STORAGE_ROOT, secret, name)
+    filelocation = os.path.join(settings.STORAGE_ROOT, bigfile.secret, bigfile.name)
     
-    if not os.access(file, os.F_OK):
+    if not os.access(filelocation, os.F_OK):
         raise Http404
         
     md5 = hashlib.md5()
@@ -136,6 +136,9 @@ def append(request, bigfileid, secret):
     bigfile.size = bigfile.size + size
     bigfile.save()
     
+    response = {'status': 'ok', 'md5': bigfile.md5}
+    return HttpResponse(simplejson.dumps(response))  
+    
 
 def download(request, bigfileid, secret):
     bigfile = get_object_or_404(BigFile, pk=bigfileid)
@@ -149,18 +152,17 @@ def download(request, bigfileid, secret):
 def delete(request, bigfileid):
     bigfile = get_object_or_404(BigFile, pk=bigfileid)
 
+    if request.user != bigfile.owner:
+        raise Http404
+    
     file_folder = os.path.join(settings.STORAGE_ROOT, bigfile.secret)
-    file_path = os.path.join(file_folder, bigfile.name)
-
-    try:        
-        os.remove(file_path)
-    except OSError:
-        # File is already gone
-        pass
- 
-    if len(os.listdir(file_folder)) == 0:
-        os.rmdir(file_folder)
-
     bigfile.delete()
+
+    try:
+        shutil.rmtree(file_folder)
+    except OSError:
+        # file probably already gone
+        pass
+     
     return HttpResponseRedirect('/bigfiles/list/')
 
