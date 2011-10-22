@@ -29,7 +29,7 @@ USE_I18N = True
 
 USE_L10N = True
 
-MEDIA_ROOT = os.path.join(here, '../../media/')
+MEDIA_ROOT = os.path.join(here, '../../static/')
 
 MEDIA_URL = '/media/'
 
