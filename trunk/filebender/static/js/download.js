@@ -2,22 +2,29 @@
 if (!window.URL && window.webkitURL)
 	window.URL = window.webkitURL;
 
-	
 
-function decrypt(URI) {
-	var xhr = new XMLHttpRequest();
-	xhr.addEventListener("load", downloadComplete, false);
-	xhr.addEventListener("error", downloadFailed, false);
-	xhr.addEventListener("abort", downloadCanceled, false);
+var download = {
+    xhr: new XMLHttpRequest(),   
+}	
+
+
+download.xhr.addEventListener("progress", download.progress, false);  
+download.xhr.addEventListener("load", download.complete, false);
+download.xhr.addEventListener("error", download.failed, false);
+download.xhr.addEventListener("abort", download.canceled, false);
+
+
+download.start = function(URI) {
 	xhr.open("GET", URI);
 	xhr.send();
 }
 
-function downloadComplete(evt) {
+
+download.complete = function (evt) {
 	//todo: check for server response errors etc
 	
 	var builder = new BlobBuilder();
-	var key = prompt("Give key used for file encryption","password");
+	var key = prompt("Give key used for file encryption", "password");
 	try {
 		var plain = sjcl.decrypt(key, evt.target.response);	
 	} catch(e) {
@@ -37,10 +44,21 @@ function downloadComplete(evt) {
 	//window.location = url;
 }
 
-function downloadFailed(evt) {
+ 
+download.progress = function (evt) {  
+    if (evt.lengthComputable) {  
+        var percentComplete = evt.loaded / evt.total;  
+    } else {  
+        pass;
+    }  
+}  
+
+
+download.failed = function(evt) {
 	alert("There was an error attempting to download the file.");
 }
 
-function downloadCanceled(evt) {
+
+download.canceled = function(evt) {
 	alert("The upload has been canceled by the user or the browser dropped the connection.");
 }
