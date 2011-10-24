@@ -1,5 +1,5 @@
 
-  
+
 
 formatSize = function(size) {
     if(size > 1024 * 1024 * 1024)
@@ -7,7 +7,7 @@ formatSize = function(size) {
     else if(size > 1024 * 1024)
         return (Math.round(size * 100 / (1024 * 1024)) / 100).toString() + 'MB';
     else
-        return (Math.round(size * 100 / 1024) / 100).toString() + 'KB'; 
+        return (Math.round(size * 100 / 1024) / 100).toString() + 'KB';
 }
 
 
@@ -16,14 +16,14 @@ var upload = {
     blockSize: 5000000,
     file: null,
     type: null,
-    reader: new FileReader(),
+    reader: null,
     plainChunk: null,
     cryptChunk: null,
     cryptBlob: null,
     fileid: null,
     key: null,
     cryptBlobBuilder: null,
-    
+
     states: {
         READY: 'ready',
         STARTED: 'started',
@@ -34,7 +34,6 @@ var upload = {
     },
 };
 
-upload.reader.onerror = function(e) { alert(e) };
 
 
 upload.reset = function() {
@@ -53,7 +52,7 @@ upload.reset = function() {
 
 upload.selected = function() {
 	upload.file = document.getElementById('id_file').files[0];
-	
+
 	if(upload.file) {
 		document.getElementById('fileName').innerHTML = 'Name: ' + upload.file.name;
 		document.getElementById('fileSize').innerHTML = 'Size: ' + formatSize(upload.file.size);
@@ -77,6 +76,7 @@ upload.start = function() {
 upload.nextChunk = function() {
     start = upload.completed;
     end = Math.min(upload.completed+upload.blockSize, upload.file.size);
+
     // make blob slice generic
     if (upload.file.mozSlice) { // firefox
         upload.slice = upload.file.mozSlice(start, end);
@@ -86,8 +86,11 @@ upload.nextChunk = function() {
         alert("cant slice a blob!");
         return;
     }
+
+    upload.reader = new FileReader();
+    upload.reader.onerror = function(e) { alert(e) };
     upload.reader.readAsBinaryString(upload.slice);
-    
+
     upload.reader.onload = function(FREvent) {
         upload.plainChunk = FREvent.target.result;
         upload.encryptChunk();
@@ -100,28 +103,28 @@ upload.encryptChunk = function() {
     upload.cryptBlobBuilder = new BlobBuilder();
     upload.cryptBlobBuilder.append(upload.cryptChunk);
     upload.cryptBlob = upload.cryptBlobBuilder.getBlob();
-    upload.uploadChunk();    
+    upload.uploadChunk();
 }
 
 
 upload.uploadChunk = function() {
-	var xhr = new XMLHttpRequest();
+    var xhr = new XMLHttpRequest();
     xhr.upload.addEventListener("progress", upload.uploadProgress, false);
     xhr.addEventListener("load", upload.uploadComplete, false);
     xhr.addEventListener("error", upload.uploadFailed, false);
     xhr.addEventListener("abort", upload.uploadCanceled, false);
-    		
-    var fd = new FormData();	
+
+    var fd = new FormData();
 	fd.append("file", upload.cryptBlob);
     fd.append("csrfmiddlewaretoken",
         document.getElementsByName('csrfmiddlewaretoken')[0].value);
-        
+
     if(upload.fileid) {
-        xhr.open("POST", "/bigfiles/append.json/" + upload.fileid + "/");        
+        xhr.open("POST", "/bigfiles/append.json/" + upload.fileid + "/");
     } else {
         xhr.open("POST", "/bigfiles/upload.json/");
     }
-	
+
 	xhr.send(fd);
 }
 
@@ -138,7 +141,7 @@ upload.uploadProgress = function(evt) {
 
 
 upload.uploadComplete = function(evt) {
-    // todo: check server http code 
+    // todo: check server http code
 	try {
         var response = JSON.parse(evt.target.responseText);
     }catch(e) {
@@ -150,20 +153,20 @@ upload.uploadComplete = function(evt) {
 	if(!upload.fileid) {
 	    if (!response['fileid']) {
 	       alert("didnt receive a fileID after first chunk");
-	       return; 
+	       return;
 	    }
-	    upload.fileid = response['fileid']; 
+	    upload.fileid = response['fileid'];
 	}
-	
+
     upload.completed = upload.completed + Math.min(upload.blockSize, upload.file.size);
 
     if(upload.completed < upload.file.size) {
-        upload.nextChunk();    
+        upload.nextChunk();
     } else {
         alert("upload complete!");
         upload.reset();
     }
-    
+
 }
 
 
