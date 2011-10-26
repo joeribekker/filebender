@@ -63,12 +63,16 @@ upload.selected = function() {
 
 
 upload.start = function() {
+    upload.selected();
+    
 	if(!upload.file) {
 	    alert("no file selected");
 	    return;
 	}
 
     upload.doCrypt = document.getElementById('id_docrypt').checked;
+
+    document.getElementById('progressNumber').innerHTML = "0%";
 
 	upload.key = document.getElementById('id_key').value;
 	upload.state = upload.states.STARTED;
@@ -77,14 +81,16 @@ upload.start = function() {
 
 
 upload.nextChunk = function() {
-    start = upload.completed;
-    end = Math.min(upload.completed+upload.blockSize, upload.file.size);
+    var start = upload.completed;
+    var end = Math.min(upload.completed+upload.blockSize, upload.file.size);
 
     // make blob slice generic
     if (upload.file.mozSlice) { // firefox
         upload.slice = upload.file.mozSlice(start, end);
     } else if (upload.file.webkitSlice) { // chrome
         upload.slice = upload.file.webkitSlice(start, end);
+    } else if (upload.file.slice) { // chrome
+        upload.slice = upload.file.slice(start, end);
     } else {
         alert("cant slice a blob!");
         return;
@@ -110,6 +116,7 @@ upload.encryptChunk = function() {
     upload.cryptBlobBuilder = new BlobBuilder();
     upload.cryptBlobBuilder.append(upload.cryptChunk);
     upload.cryptBlob = upload.cryptBlobBuilder.getBlob();
+    upload.cryptBlob.name = upload.file.name;
     upload.uploadChunk();
 }
 
@@ -143,8 +150,8 @@ upload.uploadChunk = function() {
 upload.uploadProgress = function(evt) {
     var newPercent = "??";
 	if(evt.lengthComputable) {
-		var percentComplete = Math.round((evt.loaded + upload.completed - upload.blockSize) * 100 /
-		                                                  upload.file.size);
+		var percentComplete = Math.round((evt.loaded + upload.completed) * 100 /
+		                                                  (upload.completed + upload.file.size - upload.blockSize));
 		newPercent = percentComplete.toString() + '%';
 	}
 	document.getElementById('progressNumber').innerHTML = newPercent;
@@ -174,6 +181,7 @@ upload.uploadComplete = function(evt) {
     if(upload.completed < upload.file.size) {
         upload.nextChunk();
     } else {
+        document.getElementById('progressNumber').innerHTML = "100%";
         alert("upload complete!");
         upload.reset();
     }

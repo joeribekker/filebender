@@ -3,24 +3,24 @@ if (!window.URL && window.webkitURL)
 	window.URL = window.webkitURL;
 
 
-var download = {
-    xhr: new XMLHttpRequest(),   
-}	
+var downloader = {
+    xhr: new XMLHttpRequest(),
+    filename: null,
+};
 
 
-download.xhr.addEventListener("progress", download.progress, false);  
-download.xhr.addEventListener("load", download.complete, false);
-download.xhr.addEventListener("error", download.failed, false);
-download.xhr.addEventListener("abort", download.canceled, false);
+downloader.start = function(URI, filename) {
+    downloader.filename = filename;
+    downloader.xhr.addEventListener("progress", downloader.progress, false);
+    downloader.xhr.addEventListener("load", downloader.complete, false);
+    downloader.xhr.addEventListener("error", downloader.failed, false);
+    downloader.xhr.addEventListener("abort", downloader.canceled, false);
+	downloader.xhr.open("GET", URI);
+	downloader.xhr.send();
+};
 
 
-download.start = function(URI) {
-	xhr.open("GET", URI);
-	xhr.send();
-}
-
-
-download.complete = function (evt) {
+downloader.complete = function (evt) {
 	//todo: check for server response errors etc
 	
 	var builder = new BlobBuilder();
@@ -39,13 +39,11 @@ download.complete = function (evt) {
 	
 	builder.append(byteArray.buffer);
 	blob = builder.getBlob();
-	saveAs(blob, "bla");
-	//url = window.URL.createObjectURL(blob);
-	//window.location = url;
+	saveAs(blob, downloader.filename);
 }
 
  
-download.progress = function (evt) {  
+downloader.progress = function (evt) {  
     if (evt.lengthComputable) {  
         var percentComplete = evt.loaded / evt.total;  
     } else {  
@@ -54,11 +52,11 @@ download.progress = function (evt) {
 }  
 
 
-download.failed = function(evt) {
+downloader.failed = function(evt) {
 	alert("There was an error attempting to download the file.");
 }
 
 
-download.canceled = function(evt) {
+downloader.canceled = function(evt) {
 	alert("The upload has been canceled by the user or the browser dropped the connection.");
 }
