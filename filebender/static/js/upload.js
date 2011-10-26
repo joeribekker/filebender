@@ -40,6 +40,7 @@ upload.reset = function() {
     upload.completed = 0;
     upload.file = null;
     upload.type = null;
+    upload.doCrypt = true;
     upload.plainChunk = null;
     upload.cryptChunk = null;
     upload.cryptBlob = null;
@@ -67,6 +68,8 @@ upload.start = function() {
 	    return;
 	}
 
+    upload.doCrypt = document.getElementById('id_docrypt').checked;
+
 	upload.key = document.getElementById('id_key').value;
 	upload.state = upload.states.STARTED;
     upload.nextChunk();
@@ -93,7 +96,11 @@ upload.nextChunk = function() {
 
     upload.reader.onload = function(FREvent) {
         upload.plainChunk = FREvent.target.result;
-        upload.encryptChunk();
+        if  (upload.doCrypt)
+            upload.encryptChunk();
+        else
+            upload.uploadChunk();
+
     }
 }
 
@@ -109,21 +116,25 @@ upload.encryptChunk = function() {
 
 upload.uploadChunk = function() {
     var xhr = new XMLHttpRequest();
+    var fd = new FormData();
+
     xhr.upload.addEventListener("progress", upload.uploadProgress, false);
     xhr.addEventListener("load", upload.uploadComplete, false);
     xhr.addEventListener("error", upload.uploadFailed, false);
     xhr.addEventListener("abort", upload.uploadCanceled, false);
 
-    var fd = new FormData();
-	fd.append("file", upload.cryptBlob);
+    if (upload.doCrypt)
+	    fd.append("file", upload.cryptBlob);
+    else
+        fd.append("file", upload.slice);
+
     fd.append("csrfmiddlewaretoken",
         document.getElementsByName('csrfmiddlewaretoken')[0].value);
 
-    if(upload.fileid) {
+    if(upload.fileid)
         xhr.open("POST", "/bigfiles/append.json/" + upload.fileid + "/");
-    } else {
+    else
         xhr.open("POST", "/bigfiles/upload.json/");
-    }
 
 	xhr.send(fd);
 }
